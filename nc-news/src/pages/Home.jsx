@@ -1,15 +1,27 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import axios from 'axios'
 import ArticleCard from '../components/ArticleCard'
 
 function Home() {
   const [articles, setArticles] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('https://be-nc-news-example-46vu.onrender.com/api/articles')
-      .then(res => res.json())
-      .then(data => setArticles(data.articles))
+    axios.get('https://be-nc-news-example-46vu.onrender.com/api/articles')
+      .then(res => {
+        setArticles(res.data.articles)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <span className="text-lg text-gray-600 dark:text-gray-300 animate-pulse">Loading articles...</span>
+      </div>
+    )
+  }
 
   return (
     <div>
