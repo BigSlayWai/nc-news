@@ -1,14 +1,28 @@
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import axios from 'axios'
+import CommentCard from '../components/CommentCard'
 
 function ArticleDetails() {
   const { article_id } = useParams()
   const [article, setArticle] = useState(null)
+  const [comments, setComments] = useState([])
 
   useEffect(() => {
-    fetch(`https://be-nc-news-example-46vu.onrender.com/api/articles/${article_id}`)
-      .then(res => res.json())
-      .then(data => setArticle(data.article))
+    // Fetch article and comments in parallel
+    const fetchData = async () => {
+      try {
+        const [articleRes, commentsRes] = await Promise.all([
+          axios.get(`https://be-nc-news-example-46vu.onrender.com/api/articles/${article_id}`),
+          axios.get(`https://be-nc-news-example-46vu.onrender.com/api/articles/${article_id}/comments`)
+        ])
+        setArticle(articleRes.data.article)
+        setComments(commentsRes.data.comments)
+      } catch (err) {
+        throw new Error('Error fetching article or comments')
+      }
+    }
+    fetchData()
   }, [article_id])
 
   if (!article) return <p className="text-center mt-10 text-lg">Loading...</p>
@@ -28,9 +42,19 @@ function ArticleDetails() {
           className="w-full h-64 object-cover rounded mb-4"
         />
         <p className="mb-4 text-gray-800 dark:text-gray-100">{article.body}</p>
-        <div className="flex gap-6 text-gray-500 dark:text-gray-400 text-sm">
+        <div className="flex gap-6 text-gray-500 dark:text-gray-400 text-sm mb-6">
           <span>Votes: <span className="font-semibold">{article.votes}</span></span>
           <span>Comments: <span className="font-semibold">{article.comment_count}</span></span>
+        </div>
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Comments</h3>
+        <div>
+          {comments.length === 0 ? (
+            <p className="text-gray-500">No comments yet.</p>
+          ) : (
+            comments.map(comment => (
+              <CommentCard key={comment.comment_id} comment={comment} />
+            ))
+          )}
         </div>
       </div>
     </div>

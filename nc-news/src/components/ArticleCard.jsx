@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 function ArticleCard({ article }) {
   return (
     <Link to={`/articles/${article.article_id}`} className="block h-full">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col h-full transition hover:shadow-lg">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col h-full transition hover:shadow-xl hover:bg-gray-50 dark:hover:bg-gray-700">
         <img
           src={article.article_img_url}
           alt={article.title}
@@ -17,8 +17,8 @@ function ArticleCard({ article }) {
           <span className="font-semibold">Topic:</span> {article.topic}
         </p>
         <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-auto">
-          <span>Votes: {article.votes}</span>
-          <span>Comments: {article.comment_count}</span>
+          <span>👍 {article.votes}</span>
+          <span>💬 {article.comment_count}</span>
           <span>{new Date(article.created_at).toLocaleDateString()}</span>
         </div>
       </div>
