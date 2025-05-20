@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import CommentCard from '../components/CommentCard'
+import CommentForm from '../components/CommentForm'
 
 function ArticleDetails() {
   const { article_id } = useParams()
@@ -89,6 +90,10 @@ function ArticleDetails() {
           <div className="mb-4 text-red-600 bg-red-100 dark:bg-red-900 rounded p-2">{voteError}</div>
         )}
         <h3 className="text-xl font-semibold mb-4 text-white">Comments</h3>
+        <CommentForm
+        article_id={article.article_id}
+        onCommentPosted={comment => setComments(curr => [comment, ...curr])}
+      />
         <div>
           {comments.length === 0 ? (
             <p className="text-gray-400">No comments yet.</p>
