@@ -4,16 +4,18 @@ import axios from 'axios'
 import CommentCard from '../components/CommentCard'
 import CommentForm from '../components/CommentForm'
 
-function ArticleDetails() {
+function ArticleDetails({currentUsername}) {
   const { article_id } = useParams()
   const [article, setArticle] = useState(null)
   const [comments, setComments] = useState([])
   const [voteChange, setVoteChange] = useState(0)
   const [voting, setVoting] = useState(false)
   const [voteError, setVoteError] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
+  const [deleteError, setDeleteError] = useState(null)
+
 
   useEffect(() => {
-    // Fetch article and comments in parallel
     const fetchData = async () => {
       try {
         const [articleRes, commentsRes] = await Promise.all([
@@ -40,10 +42,23 @@ function ArticleDetails() {
         inc_votes: increment,
       })
     } catch (err) {
-      setVoteChange((curr) => curr - increment) // reverting back the vote change
+      setVoteChange((curr) => curr - increment)
       setVoteError('Failed to update vote. Please try again.')
     } finally {
       setVoting(false)
+    }
+  }
+
+  const handleDelete = async (comment_id) => {
+    setDeletingId(comment_id)
+    setDeleteError(null)
+    try {
+      await axios.delete(`https://be-nc-news-example-46vu.onrender.com/api/comments/${comment_id}`)
+      setComments(curr => curr.filter(c => c.comment_id !== comment_id))
+    } catch (err) {
+      setDeleteError('Failed to delete comment. Please try again.')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -69,7 +84,7 @@ function ArticleDetails() {
             Votes: <span className="font-semibold text-white">{article.votes + voteChange}</span>
           </span>
           <button
-            className="ml-2 px-3 py-1 bg-pink-600 text-pink rounded hover:bg-pink-700 disabled:opacity-50"
+            className="ml-2 px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700 disabled:opacity-50"
             onClick={() => handleVote(1)}
             disabled={voting}
             aria-label="Upvote"
@@ -77,7 +92,7 @@ function ArticleDetails() {
             +
           </button>
           <button
-            className="ml-2 px-3 py-1 bg-pink-600 text-pink rounded hover:bg-pink-700 disabled:opacity-50"
+            className="ml-2 px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700 disabled:opacity-50"
             onClick={() => handleVote(-1)}
             disabled={voting}
             aria-label="Downvote"
@@ -91,15 +106,24 @@ function ArticleDetails() {
         )}
         <h3 className="text-xl font-semibold mb-4 text-white">Comments</h3>
         <CommentForm
-        article_id={article.article_id}
-        onCommentPosted={comment => setComments(curr => [comment, ...curr])}
-      />
+          article_id={article.article_id}
+          onCommentPosted={comment => setComments(curr => [comment, ...curr])}
+        />
+        {deleteError && (
+          <div className="mb-4 text-red-600 bg-red-100 dark:bg-red-900 rounded p-2">{deleteError}</div>
+        )}
         <div>
           {comments.length === 0 ? (
             <p className="text-gray-400">No comments yet.</p>
           ) : (
             comments.map(comment => (
-              <CommentCard key={comment.comment_id} comment={comment} />
+              <CommentCard
+                key={comment.comment_id}
+                comment={comment}
+                currentUsername={currentUsername}
+                onDelete={handleDelete}
+                deleting={deletingId === comment.comment_id}
+              />
             ))
           )}
         </div>
