@@ -4,6 +4,8 @@ import Home from './pages/Home'
 import ArticleDetails from './pages/ArticleDetails'
 import Navbar from './components/NavBar'
 import Login from './components/Login'
+import Topics from './pages/Topics'
+import TopicsArticles from './pages/TopicsArticles'
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null)
@@ -22,6 +24,8 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/topics" element={<Topics />} />
+          <Route path="/topics/:topic_slug" element={<TopicsArticles />} />
           <Route path="/articles/:article_id" element={<ArticleDetails currentUsername={currentUser}/>} />
         </Routes>
       </BrowserRouter>
