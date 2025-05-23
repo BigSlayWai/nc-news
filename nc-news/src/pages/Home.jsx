@@ -7,12 +7,15 @@ function Home() {
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchParams, setSearchParams] = useSearchParams()
+  const [error, setError] = useState(null)
 
   // Default sort values
   const sort_by = searchParams.get('sort_by') || 'created_at'
   const order = searchParams.get('order') || 'desc'
 
   useEffect(() => {
+    setLoading(true)
+    setError(null)
     axios.get('https://be-nc-news-example-46vu.onrender.com/api/articles', {
       params: { sort_by, order }
     })
@@ -20,8 +23,15 @@ function Home() {
         setArticles(res.data.articles)
         setLoading(false)
       })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        setError('Failed to load articles. Please try again.')
+        setLoading(false)
+      })
   }, [sort_by, order])
+
+  if (error) {
+    return <div className="text-red-600 text-center">{error}</div>
+  }
 
   const handleSortChange = (e) => {
     setSearchParams({
