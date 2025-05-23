@@ -26,12 +26,17 @@ function ArticleDetails({currentUsername}) {
         setComments(commentsRes.data.comments)
         setVoteChange(0)
         setVoteError(null)
+        setFetchError(null)
       } catch (err) {
-        throw new Error('Error fetching article, votes or comments')
+        setFetchError('Failed to load article or comments.')
       }
     }
     fetchData()
   }, [article_id])
+
+  if (fetchError) {
+    return <div className="text-red-600 text-center">{fetchError}</div>
+  }
 
   const handleVote = async (increment) => {
     setVoting(true)

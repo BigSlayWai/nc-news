@@ -7,15 +7,25 @@ function TopicsArticles() {
   const { topic_slug } = useParams()
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
+    setLoading(true)
+    setError(null)
     axios.get(`https://be-nc-news-example-46vu.onrender.com/api/articles?topic=${topic_slug}`)
       .then(res => {
         setArticles(res.data.articles)
         setLoading(false)
       })
-      .catch(() => setLoading(false))
-  }, [topic_slug])
+      .catch(() => {
+        setError('Failed to load articles. Please try again.')
+        setLoading(false)
+      })
+  }, [sort_by, order])
+  
+  if (error) {
+    return <div className="text-red-600 text-center">{error}</div>
+  }  
 
   if (loading) {
     return (
